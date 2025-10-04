@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regionali 2025 - San Pietro a Maida</title>
+<style>
+  body { margin:0; font-family: "Segoe UI", Tahoma, sans-serif; background:#f5f5f5; }
+  #regional-box { max-width: 900px; margin: 20px auto; background:#fff; border-radius:12px; overflow:hidden; padding:10px; }
+  .header { background:#0b3d91; color:#fff; display:flex; align-items:center; padding:12px; }
+  .header img { height:40px; margin-right:12px; }
+  .header h2 { margin:0; font-size:1.5em; }
+  .section-title { text-align:center; margin:12px 0; color:#0b3d91; font-weight:bold; }
+  #breaking-bar { background:#b30000; color:#fff; padding:8px 12px; font-weight:bold; overflow:hidden; white-space:nowrap; }
+  .breaking-item { display:inline-block; margin-right:50px; }
+  .affluenze-grid { display:flex; justify-content:space-between; gap:6px; margin-bottom:12px; }
+  .affluenza-col { flex:1; background:rgba(11,61,145,0.1); border-radius:6px; text-align:center; padding:10px; }
+  #candidati-container { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; }
+  .candidato-box { flex:1 1 28%; text-align:center; color:#fff; font-weight:bold; padding:10px; border-radius:10px; }
+  .candidato-box:nth-child(1) { background:linear-gradient(180deg,#0b3d91,#2a5ccc); }
+  .candidato-box:nth-child(2) { background:linear-gradient(180deg,#b30000,#ff4d4d); }
+  .candidato-box:nth-child(3) { background:linear-gradient(180deg,#555555,#a0a0a0); }
+  .candidato-box img { width:90px; height:90px; border-radius:50%; margin-bottom:6px; border:2px solid #fff; object-fit:cover; }
+  .candidato-box h3 { font-size:1.4em; margin:6px 0; }
+  .candidato-box p { font-size:1.6em; margin:0; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<div id="regional-box">
+  <div class="header">
+    <img src="https://public.flourish.studio/uploads/201668/2ed26cc2-38e4-4d67-a1c5-5e522b654c90.png" alt="Logo"/>
+    <h2>Regionali 2025 - San Pietro a Maida</h2>
+  </div>
+
+  <div id="breaking-bar"></div>
+
+  <h4 class="section-title">Affluenze Sezioni</h4>
+  <div class="affluenze-grid" id="affluenze-sezioni"></div>
+
+  <h4 class="section-title">Risultati Candidati</h4>
+  <div id="candidati-container"></div>
+</div>
+
+<script>
+async function loadBreakingNews() {
+  try {
+    const res = await fetch("https://script.google.com/macros/s/AKfycbyHH91-WLfd8i6LMcrqv85AOQKBnD4H8mhIGBGwAAhEVpON7vST3wVRwbUQv2-YPf2hBw/exec");
+    const dati = await res.json();
+    const bar = document.getElementById("breaking-bar");
+    bar.innerHTML = dati.map(r => `<span class="breaking-item">${r.testobreaking}</span>`).join('');
+  } catch(e){ console.error(e); }
+}
+
+async function loadAffluenze() {
+  try {
+    const res = await fetch("https://script.google.com/macros/s/AKfycbx0AiotPEmd_2Lc8V5mGd-JLVrNTObk1vkcpurtO-LqlCIk0sIX_KJPltsipQHsQ6mq/exec");
+    const dati = await res.json();
+    const container = document.getElementById("affluenze-sezioni");
+    container.innerHTML = "";
+    for(let i=1;i<=5;i++){
+      const tot = dati[dati.length-1][`Sez${i}`];
+      const col = document.createElement("div");
+      col.className = "affluenza-col";
+      col.innerHTML = `<div>Sez ${i}</div><div>${tot}</div>`;
+      container.appendChild(col);
+    }
+  } catch(e){ console.error(e); }
+}
+
+async function loadCandidati() {
+  try {
+    const res = await fetch("https://script.google.com/macros/s/AKfycbzJK_5SKB1COnSpQH9ahNFHZ5CLqDusB0N63beQT8HavEWz21dA_fkGaSUwMPaxvGTm/exec");
+    const dati = await res.json();
+    const container = document.getElementById("candidati-container");
+    container.innerHTML = "";
+    dati.forEach((cand,i)=>{
+      const div = document.createElement("div");
+      div.className = "candidato-box";
+      div.innerHTML = `<img src="${cand.foto}" alt="${cand.candidato}"><h3>${cand.candidato}</h3><p>${cand["voti totale"]}</p>`;
+      container.appendChild(div);
+    });
+  } catch(e){ console.error(e); }
+}
+
+function refreshData() {
+  loadAffluenze();
+  loadCandidati();
+}
+
+window.addEventListener("load", ()=>{
+  loadBreakingNews();
+  refreshData();
+  setInterval(refreshData,15000);
+});
+</script>
+
+</body>
+</html>
